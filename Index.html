@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SafetyOnSite</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--y:#FFD600;--bg:#0D0D0D;--card:#1E1E1E;--card2:#252525;--card3:#2C2C2C;--text:#F0F0F0;--muted:#888;--border:rgba(255,255,255,0.08);--red:#FF4444;--orange:#FF8C00;--green:#2ECC71}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh}
+/* LOGIN */
+#loginScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.login-logo{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:600;letter-spacing:.02em;margin-bottom:4px}
+.login-logo .ls{color:var(--y)}
+.login-sub{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:28px}
+.login-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:360px}
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.fi{width:100%;background:var(--card3);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px}
+.fi:focus{outline:none;border-color:var(--y)}
+.fi::placeholder{color:#444}
+.lbtn{width:100%;background:var(--y);color:#000;border:none;border-radius:8px;padding:13px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:.05em;cursor:pointer;margin-top:6px}
+.lbtn:hover{background:#FFE033}
+.ltog{text-align:center;margin-top:14px;font-size:13px;color:var(--muted)}
+.ltog a{color:var(--y);cursor:pointer}
+.ferr{color:var(--red);font-size:12px;margin-top:5px;display:none}
+/* API KEY */
+.apikey-section{margin-top:20px;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:12px;width:100%;max-width:360px}
+.apikey-section .fl{margin-bottom:6px}
+.apikey-hint{font-size:11px;color:#555;line-height:1.5;margin:6px 0 10px}
+.apikey-hint a{color:var(--y)}
+.save-key-btn{width:100%;background:rgba(255,214,0,0.08);border:1px solid rgba(255,214,0,0.3);border-radius:8px;padding:10px;color:var(--y);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.04em}
+.save-key-btn:hover{background:rgba(255,214,0,0.15)}
+.key-saved{font-size:12px;color:var(--green);text-align:center;margin-top:8px;display:none}
+/* APP */
+#app{display:none;flex-direction:column;min-height:100vh;max-width:420px;margin:0 auto;position:relative}
+.hdr{background:var(--bg);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+.logo{font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:600;letter-spacing:.02em}
+.logo .ls{color:var(--y)}
+.hdr-r{display:flex;align-items:center;gap:8px}
+.hbtn{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;color:var(--muted)}
+.hbtn:hover{color:var(--y)}
+.hbtn.fb{color:var(--y);border-color:rgba(255,214,0,.3);font-size:14px}
+.av{width:30px;height:30px;border-radius:50%;background:rgba(255,214,0,.12);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--y);cursor:pointer;border:1px solid rgba(255,214,0,.25)}
+.umenu{position:absolute;top:52px;right:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:6px;min-width:180px;z-index:30;display:none}
+.umenu.open{display:block}
+.um-n{padding:8px 12px 6px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border);margin-bottom:4px}
+.um-i{padding:9px 12px;border-radius:7px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.um-i:hover{background:var(--card2)}
+.um-i.red{color:var(--red)}
+/* WEATHER */
+.wbar{background:var(--card2);border-bottom:1px solid var(--border);padding:6px 16px;display:flex;align-items:center;justify-content:space-between;min-height:32px}
+.wi{display:flex;align-items:center;gap:5px;font-size:12px}
+.wi svg{width:13px;height:13px;stroke:var(--y);fill:none;stroke-width:2;flex-shrink:0}
+.wv{font-weight:600;font-size:13px}
+.wu{color:var(--muted);font-size:11px}
+.wloc{font-size:11px;color:var(--muted);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wwarn{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px}
+/* TABS */
+.tc{flex:1;overflow-y:auto;padding:16px;padding-bottom:72px}
+.tp{display:none}.tp.active{display:block}
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:var(--card);border-top:1px solid var(--border);display:flex;z-index:20}
+.nb{flex:1;background:none;border:none;padding:12px 8px 14px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;color:var(--muted)}
+.nb.active{color:var(--y)}
+.nb svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nb span{font-size:10px;font-weight:700;letter-spacing:.06em;font-family:'Barlow Condensed',sans-serif}
+/* SCAN */
+.uz{border:none;border-radius:12px;min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:var(--card);position:relative;overflow:hidden;margin-bottom:12px}
+.uz::before{content:'';position:absolute;inset:0;border-radius:12px;padding:3px;background:repeating-linear-gradient(45deg,#FFD600 0,#FFD600 12px,#111 12px,#111 24px);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.ui{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px;text-align:center}
+.ucc{width:50px;height:50px;border-radius:50%;background:rgba(255,214,0,.1);border:1px solid rgba(255,214,0,.25);display:flex;align-items:center;justify-content:center}
+.ut{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--y);letter-spacing:.04em}
+.uh{font-size:12px;color:var(--muted)}
+.ucl{position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.75);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--y);display:none}
+.uz.hi .ucl{display:block}
+.pimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:10px;display:none}
+input[type=file]{display:none}
+.pbtn{width:100%;background:var(--y);color:#000;border:none;border-radius:10px;padding:14px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:.05em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.pbtn:hover{background:#FFE033}
+.pbtn:disabled{background:#3a3a3a;color:#666;cursor:not-allowed}
+.spin{width:38px;height:38px;border:3px solid rgba(255,214,0,.2);border-top-color:var(--y);border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.anbox{background:var(--card);border-radius:12px;padding:28px;display:none;flex-direction:column;align-items:center;gap:10px;margin-top:12px}
+.res{display:none;flex-direction:column;gap:10px;margin-top:12px}
+.sh{display:flex;align-items:center;justify-content:space-between}
+.st{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:.03em}
+.rp{font-size:11px;font-weight:700;padding:3px 11px;border-radius:20px;letter-spacing:.06em;text-transform:uppercase}
+.rp-critical{background:rgba(255,68,68,.15);color:var(--red)}
+.rp-high{background:rgba(255,140,0,.15);color:var(--orange)}
+.rp-medium{background:rgba(255,214,0,.15);color:var(--y)}
+.rp-low{background:rgba(46,204,113,.15);color:var(--green)}
+.hzc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;display:flex;gap:12px;align-items:flex-start}
+.hzc.critical{border-left:3px solid var(--red)}.hzc.high{border-left:3px solid var(--orange)}.hzc.medium{border-left:3px solid var(--y)}.hzc.low{border-left:3px solid var(--green)}
+.hd{width:9px;height:9px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.critical .hd{background:var(--red)}.high .hd{background:var(--orange)}.medium .hd{background:var(--y)}.low .hd{background:var(--green)}
+.ht{font-size:14px;font-weight:600;margin-bottom:3px}
+.hde{font-size:12px;color:var(--muted);line-height:1.5}
+.hb{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.06em;flex-shrink:0;margin-top:2px;text-transform:uppercase}
+.critical .hb{background:rgba(255,68,68,.12);color:var(--red)}.high .hb{background:rgba(255,140,0,.12);color:var(--orange)}.medium .hb{background:rgba(255,214,0,.12);color:var(--y)}.low .hb{background:rgba(46,204,113,.12);color:var(--green)}
+.sumbox{background:var(--card2);border-radius:10px;padding:13px 15px}
+.suml{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px}
+.sumt{font-size:13px;line-height:1.6}
+.ar{display:flex;gap:8px}
+.gb{flex:1;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:11px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text);text-align:center}
+.gb:hover{background:var(--card2)}
+.eb{background:rgba(255,68,68,.06);border:1px solid rgba(255,68,68,.2);border-radius:10px;padding:13px;font-size:13px;color:#ff9999;line-height:1.5;display:none;margin-top:10px}
+/* INFO */
+.ic{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.ih{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.ih:hover{background:var(--card2)}
+.ihl{display:flex;align-items:center;gap:12px}
+.ii{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px;font-weight:700}
+.ic-y{background:rgba(255,214,0,.12);color:var(--y)}.ic-r{background:rgba(255,68,68,.1);color:var(--red)}.ic-o{background:rgba(255,140,0,.1);color:var(--orange)}.ic-b{background:rgba(74,158,255,.1);color:#4a9eff}.ic-g{background:rgba(46,204,113,.1);color:var(--green)}
+.it{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.03em}
+.is{font-size:11px;color:var(--muted);margin-top:1px}
+.chv{transition:transform .25s;color:var(--muted)}
+.ic.open .chv{transform:rotate(180deg)}
+.ib{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
+.ic.open .ib{display:block}
+.ri{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.5}
+.ri:last-child{border-bottom:none}
+.rn{min-width:22px;height:22px;border-radius:50%;background:rgba(255,214,0,.1);color:var(--y);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.dlb{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px;padding:10px;border-radius:8px;background:rgba(255,214,0,.07);border:1px solid rgba(255,214,0,.2);color:var(--y);font-size:13px;font-weight:600;cursor:pointer;width:100%}
+.dlb:hover{background:rgba(255,214,0,.14)}
+.ppg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.ppi{background:var(--card2);border-radius:8px;padding:10px 12px;font-size:12px;line-height:1.5}
+.ppi strong{font-weight:600;display:block;margin-bottom:2px;font-size:12px}
+.ppi span{color:var(--muted)}
+.hsvg{width:100%;max-width:300px;margin:16px auto 0;display:block}
+.inote{font-size:12px;color:var(--muted);line-height:1.6;margin-top:10px}
+/* LEGISLATION */
+.sw{position:relative;margin-bottom:12px}
+.sicon{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;stroke:var(--muted);fill:none;stroke-width:2;pointer-events:none}
+.csi{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 14px 11px 38px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px}
+.csi:focus{outline:none;border-color:var(--y)}
+.csi::placeholder{color:#444}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.cbtn{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 12px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px}
+.cbtn:hover{border-color:rgba(255,214,0,.4);background:var(--card2)}
+.cbtn.sel{border-color:var(--y);background:rgba(255,214,0,.06)}
+.cflag{font-size:12px;font-weight:700;color:var(--muted);flex-shrink:0;font-family:'Barlow Condensed',sans-serif}
+.cname{font-size:13px;font-weight:600;line-height:1.3}
+.cyear{font-size:10px;color:var(--muted);margin-top:1px}
+.lwcard{background:var(--card);border:1px solid rgba(255,214,0,.3);border-radius:12px;padding:16px;margin-top:4px}
+.lwhdr{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.lwflag{font-size:14px;font-weight:700;color:var(--y);font-family:'Barlow Condensed',sans-serif;flex-shrink:0;margin-top:3px}
+.lwcn{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700}
+.lwn{font-size:12px;color:var(--y);font-weight:600;margin-top:2px;line-height:1.4}
+.lwy{font-size:11px;color:var(--muted);margin-top:3px}
+.lwbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;margin-top:14px}
+.lwr{display:flex;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.5}
+.lwr:last-child{border-bottom:none}
+.lwdot{width:6px;height:6px;border-radius:50%;background:var(--y);flex-shrink:0;margin-top:7px}
+.lwlink{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px;padding:11px;border-radius:8px;background:rgba(255,214,0,.08);border:1px solid rgba(255,214,0,.25);color:var(--y);font-size:13px;font-weight:600;cursor:pointer;width:100%;text-decoration:none}
+.lwlink:hover{background:rgba(255,214,0,.15)}
+.lwreg{background:var(--card2);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5}
+.lwreg strong{color:var(--text);font-size:12px}
+/* REPORT */
+.rcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 15px;margin-bottom:10px;display:flex;gap:12px;align-items:center}
+.rthumb{width:52px;height:52px;border-radius:8px;object-fit:cover;border:1px solid var(--border);flex-shrink:0}
+.rph{width:52px;height:52px;border-radius:8px;background:var(--card2);border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.rmeta{flex:1;min-width:0}
+.rdate{font-size:11px;color:var(--muted);margin-bottom:3px}
+.rtitle{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rpills{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.rpill{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px}
+.rpdlbtn{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:12px;font-weight:600;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:4px;flex-shrink:0}
+.empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty-t{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--text)}
+.empty-s{font-size:13px;line-height:1.6}
+/* FEEDBACK */
+.fbo{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.fbo.open{display:flex}
+.fbm{background:var(--card);border-radius:16px 16px 0 0;padding:24px;width:100%;max-width:420px;border-top:3px solid var(--y)}
+.fbt{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.fbx{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer}
+.fbta{width:100%;background:var(--card3);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;resize:none;height:100px;margin-bottom:10px}
+.fbta:focus,.fbei:focus{outline:none;border-color:var(--y)}
+.fbei{width:100%;background:var(--card3);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;margin-bottom:12px}
+.fbta::placeholder,.fbei::placeholder{color:#444}
+.fbsb{width:100%;background:var(--y);color:#000;border:none;border-radius:8px;padding:13px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;cursor:pointer}
+/* TOAST */
+.toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 18px;font-size:13px;z-index:100;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-logo"><span class="ls">S</span>afety<span class="ls">O</span>n<span class="ls">S</span>ite</div>
+  <div class="login-sub">HSE Inspection Platform</div>
+  <div class="login-card">
+    <div id="regForm" style="display:none">
+      <div class="fg"><label class="fl">FULL NAME</label><input class="fi" id="regName" placeholder="John Smith"></div>
+      <div class="fg"><label class="fl">COMPANY</label><input class="fi" id="regCompany" placeholder="ABC Construction Ltd."></div>
+      <div class="fg"><label class="fl">EMAIL</label><input class="fi" id="regEmail" type="email" placeholder="john@company.com"></div>
+      <div class="fg"><label class="fl">PASSWORD</label><input class="fi" id="regPass" type="password" placeholder="min 6 characters"></div>
+      <div class="ferr" id="regErr"></div>
+      <button class="lbtn" onclick="doRegister()">REGISTER</button>
+      <div class="ltog">Already have an account? <a onclick="showLogin()">Sign in</a></div>
+    </div>
+    <div id="loginForm">
+      <div class="fg"><label class="fl">EMAIL</label><input class="fi" id="loginEmail" type="email" placeholder="john@company.com"></div>
+      <div class="fg"><label class="fl">PASSWORD</label><input class="fi" id="loginPass" type="password" placeholder="password"></div>
+      <div class="ferr" id="loginErr"></div>
+      <button class="lbtn" onclick="doLogin()">SIGN IN</button>
+      <div class="ltog">No account? <a onclick="showRegister()">Register</a></div>
+    </div>
+  </div>
+  <div class="apikey-section">
+    <label class="fl">ANTHROPIC API KEY</label>
+    <input class="fi" id="apiKeyInput" type="password" placeholder="sk-ant-api03-...">
+    <div class="apikey-hint">Get your key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> — saved locally, entered once.</div>
+    <button class="save-key-btn" onclick="saveApiKey()">SAVE API KEY</button>
+    <div class="key-saved" id="keySaved">Key saved!</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="hdr" style="position:relative">
+    <div class="logo"><span class="ls">S</span>afety<span class="ls">O</span>n<span class="ls">S</span>ite</div>
+    <div class="hdr-r">
+      <button class="hbtn fb" onclick="openFeedback()">&#128172;</button>
+      <div class="av" id="userAvatar" onclick="toggleMenu()">?</div>
+    </div>
+    <div class="umenu" id="userMenu">
+      <div class="um-n" id="menuName">---</div>
+      <div class="um-i red" onclick="logout()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </div>
+    </div>
+  </div>
+
+  <div class="wbar" id="wbar">
+    <div id="wleft" style="display:flex;align-items:center;gap:12px"><span style="font-size:11px;color:var(--muted)">Locating...</span></div>
+    <div id="wwarn"></div>
+  </div>
+
+  <div class="tc">
+    <!-- SCAN TAB -->
+    <div class="tp active" id="tabScan">
+      <label for="imgInput" style="display:block;cursor:pointer">
+        <div class="uz" id="uz">
+          <img class="pimg" id="pimg">
+          <div class="ui" id="uinner">
+            <div class="ucc"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFD600" stroke-width="1.8"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            <div class="ut">SCAN THE SCENE</div>
+            <div class="uh">Take a photo or choose from gallery</div>
+          </div>
+          <div class="ucl">Change Photo</div>
+        </div>
+      </label>
+      <input type="file" id="imgInput" accept="image/*" capture="environment">
+      <div style="margin-bottom:12px"></div>
+      <button class="pbtn" id="scanBtn" disabled onclick="analyzeImage()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        ANALYZE HAZARDS
+      </button>
+      <div class="eb" id="errBox"></div>
+      <div class="anbox" id="anbox">
+        <div class="spin"></div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;color:var(--y);letter-spacing:.04em">AI SCANNING</div>
+        <div style="font-size:12px;color:var(--muted)">Detecting hazards...</div>
+      </div>
+      <div class="res" id="resBox">
+        <div class="sh">
+          <div class="st">DETECTED HAZARDS</div>
+          <div class="rp" id="riskBadge"></div>
+        </div>
+        <div id="hzList"></div>
+        <div class="sumbox" id="sumBox" style="display:none">
+          <div class="suml">OVERALL ASSESSMENT</div>
+          <div class="sumt" id="sumTxt"></div>
+        </div>
+        <div class="ar">
+          <button class="gb" onclick="resetScan()">New Scan</button>
+          <button class="gb" onclick="saveReport()">Save Report</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFO TAB -->
+    <div class="tp" id="tabInfo">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;margin-bottom:14px">QUICK REFERENCE</div>
+      <div class="ic" id="hocCard">
+        <div class="ih" onclick="toggleCard('hoc')">
+          <div class="ihl"><div class="ii ic-y">&#9650;</div><div><div class="it">HIERARCHY OF CONTROLS</div><div class="is">Risk control priority levels</div></div></div>
+          <svg class="chv" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="ib">
+          <svg class="hsvg" viewBox="0 0 300 265" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="150,6 182,52 118,52" fill="#1a7a3a"/>
+            <text x="150" y="34" text-anchor="middle" fill="white" font-family="Arial" font-size="9" font-weight="700">ELIMINATION</text>
+            <polygon points="118,56 182,56 218,102 82,102" fill="#27ae60"/>
+            <text x="150" y="84" text-anchor="middle" fill="white" font-family="Arial" font-size="10" font-weight="700">SUBSTITUTION</text>
+            <polygon points="82,106 218,106 254,152 46,152" fill="#d4ac0d"/>
+            <text x="150" y="133" text-anchor="middle" fill="#1a1a1a" font-family="Arial" font-size="9" font-weight="700">ENGINEERING CONTROLS</text>
+            <polygon points="46,156 254,156 290,202 10,202" fill="#e67e22"/>
+            <text x="150" y="183" text-anchor="middle" fill="white" font-family="Arial" font-size="10" font-weight="700">ADMINISTRATIVE CONTROLS</text>
+            <polygon points="10,206 290,206 300,246 0,246" fill="#c0392b"/>
+            <text x="150" y="230" text-anchor="middle" fill="white" font-family="Arial" font-size="12" font-weight="700">PPE</text>
+            <text x="6" y="258" fill="#666" font-family="Arial" font-size="9">More effective</text>
+            <text x="294" y="258" text-anchor="end" fill="#666" font-family="Arial" font-size="9">Common use</text>
+          </svg>
+          <div class="inote">Always start from the highest control level. Elimination is most effective; PPE is the last resort.</div>
+        </div>
+      </div>
+      <div class="ic" id="wahCard">
+        <div class="ih" onclick="toggleCard('wah')">
+          <div class="ihl"><div class="ii ic-r">&#9650;</div><div><div class="it">WORKING AT HEIGHT</div><div class="is">Key rules and requirements</div></div></div>
+          <svg class="chv" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="ib"><div id="wahRules"></div></div>
+      </div>
+      <div class="ic" id="csCard">
+        <div class="ih" onclick="toggleCard('cs')">
+          <div class="ihl"><div class="ii ic-o">&#9660;</div><div><div class="it">CONFINED SPACE</div><div class="is">Entry requirements and precautions</div></div></div>
+          <svg class="chv" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="ib"><div id="csRules"></div></div>
+      </div>
+      <div class="ic" id="ppeCard">
+        <div class="ih" onclick="toggleCard('ppe')">
+          <div class="ihl"><div class="ii ic-b" style="font-size:20px">&#9937;</div><div><div class="it">PPE SELECTION GUIDE</div><div class="is">Protection by body part</div></div></div>
+          <svg class="chv" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="ib"><div class="ppg" id="ppeGrid"></div></div>
+      </div>
+      <div class="ic" id="incCard">
+        <div class="ih" onclick="toggleCard('inc')">
+          <div class="ihl"><div class="ii ic-g" style="font-size:20px">!</div><div><div class="it">INCIDENT / NEAR-MISS REPORTING</div><div class="is">Step-by-step response guide</div></div></div>
+          <svg class="chv" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="ib"><div id="incRules"></div></div>
+      </div>
+    </div>
+
+    <!-- LEGISLATION TAB -->
+    <div class="tp" id="tabLaw">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;margin-bottom:14px">OSH LEGISLATION</div>
+      <div class="sw">
+        <svg class="sicon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="csi" id="cSearch" placeholder="Search country..." oninput="filterCountries(this.value)">
+      </div>
+      <div class="cgrid" id="cgrid"></div>
+      <div id="lawDetail"></div>
+    </div>
+
+    <!-- REPORT TAB -->
+    <div class="tp" id="tabReport">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700">REPORTS</div>
+        <button class="rpdlbtn" onclick="exportAll()">Export All</button>
+      </div>
+      <div id="rptList"></div>
+    </div>
+  </div>
+
+  <div class="bnav">
+    <button class="nb active" id="nav-scan" onclick="switchTab('scan')">
+      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      <span>SCAN</span>
+    </button>
+    <button class="nb" id="nav-info" onclick="switchTab('info')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>INFO</span>
+    </button>
+    <button class="nb" id="nav-law" onclick="switchTab('law')">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span>LAWS</span>
+    </button>
+    <button class="nb" id="nav-report" onclick="switchTab('report')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>REPORT</span>
+    </button>
+  </div>
+</div>
+
+<div class="fbo" id="fbo" onclick="if(event.target===this)closeFeedback()">
+  <div class="fbm">
+    <div class="fbt"><span>FEEDBACK</span><button class="fbx" onclick="closeFeedback()">x</button></div>
+    <textarea class="fbta" id="fbMsg" placeholder="Share your thoughts about the app..."></textarea>
+    <input class="fbei" id="fbEmail" type="email" placeholder="Email (optional)">
+    <button class="fbsb" onclick="sendFeedback()">SEND</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var currentUser = null;
+var currentImg = null;
+var compressedB64 = null;
+var scanResult = null;
+var selectedCountry = null;
+
+function getApiKey() { return localStorage.getItem('sos_apikey') || ''; }
+function saveApiKey() {
+  var k = document.getElementById('apiKeyInput').value.trim();
+  if (!k) { showToast('Enter your API key'); return; }
+  localStorage.setItem('sos_apikey', k);
+  document.getElementById('keySaved').style.display = 'block';
+  setTimeout(function() { document.getElementById('keySaved').style.display = 'none'; }, 2000);
+}
+
+function getUsers() { try { return JSON.parse(localStorage.getItem('sos_users') || '[]'); } catch(e) { return []; } }
+function saveUsers(u) { localStorage.setItem('sos_users', JSON.stringify(u)); }
+function getScans() { try { return JSON.parse(localStorage.getItem('sos_scans') || '[]'); } catch(e) { return []; } }
+function saveScans(s) { localStorage.setItem('sos_scans', JSON.stringify(s)); }
+
+function doLogin() {
+  var email = document.getElementById('loginEmail').value.trim();
+  var pass = document.getElementById('loginPass').value;
+  var err = document.getElementById('loginErr');
+  var user = getUsers().find(function(u) { return u.email === email; });
+  if (!user) { showErr(err, 'User not found'); return; }
+  if (user.password !== pass) { showErr(err, 'Incorrect password'); return; }
+  currentUser = user;
+  localStorage.setItem('sos_current', JSON.stringify(user));
+  bootApp();
+}
+
+function doRegister() {
+  var name = document.getElementById('regName').value.trim();
+  var company = document.getElementById('regCompany').value.trim();
+  var email = document.getElementById('regEmail').value.trim();
+  var pass = document.getElementById('regPass').value;
+  var err = document.getElementById('regErr');
+  if (!name || !email || !pass) { showErr(err, 'Please fill all fields'); return; }
+  if (!email.includes('@')) { showErr(err, 'Invalid email'); return; }
+  if (pass.length < 6) { showErr(err, 'Password must be at least 6 characters'); return; }
+  var users = getUsers();
+  if (users.find(function(u) { return u.email === email; })) { showErr(err, 'Email already registered'); return; }
+  var user = { name: name, company: company, email: email, password: pass };
+  users.push(user); saveUsers(users);
+  currentUser = user;
+  localStorage.setItem('sos_current', JSON.stringify(user));
+  bootApp();
+}
+
+function showErr(el, msg) { el.textContent = msg; el.style.display = 'block'; setTimeout(function() { el.style.display = 'none'; }, 3000); }
+function showLogin() { document.getElementById('loginForm').style.display = 'block'; document.getElementById('regForm').style.display = 'none'; }
+function showRegister() { document.getElementById('loginForm').style.display = 'none'; document.getElementById('regForm').style.display = 'block'; }
+
+function logout() {
+  localStorage.removeItem('sos_current'); currentUser = null;
+  document.getElementById('userMenu').classList.remove('open');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+function toggleMenu() { document.getElementById('userMenu').classList.toggle('open'); }
+document.addEventListener('click', function(e) {
+  var m = document.getElementById('userMenu'), av = document.getElementById('userAvatar');
+  if (m && !m.contains(e.target) && e.target !== av) m.classList.remove('open');
+});
+
+function bootApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+  document.getElementById('menuName').textContent = currentUser.name + (currentUser.company ? ' - ' + currentUser.company : '');
+  renderInfoContent(); renderReports(); initWeather(); initLegislation();
+}
+
+function switchTab(tab) {
+  ['scan','info','law','report'].forEach(function(t) {
+    var p = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+    var n = document.getElementById('nav-' + t);
+    if (p) p.classList.remove('active');
+    if (n) n.classList.remove('active');
+  });
+  document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  document.getElementById('nav-' + tab).classList.add('active');
+  if (tab === 'report') renderReports();
+  if (tab === 'law') initLegislation();
+}
+
+document.getElementById('imgInput').addEventListener('change', function(e) {
+  var file = e.target.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    currentImg = ev.target.result;
+    var imgEl = document.getElementById('pimg');
+    imgEl.src = currentImg; imgEl.style.display = 'block';
+    document.getElementById('uinner').style.display = 'none';
+    document.getElementById('uz').classList.add('hi');
+    document.getElementById('scanBtn').disabled = true;
+    document.getElementById('resBox').style.display = 'none';
+    document.getElementById('errBox').style.display = 'none';
+    var image = new Image();
+    image.onload = function() {
+      var canvas = document.createElement('canvas');
+      var MAX = 1024, w = image.width, h = image.height;
+      if (w > MAX || h > MAX) { if (w > h) { h = Math.round(h * MAX / w); w = MAX; } else { w = Math.round(w * MAX / h); h = MAX; } }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(image, 0, 0, w, h);
+      compressedB64 = canvas.toDataURL('image/jpeg', 0.82).split(',')[1];
+      document.getElementById('scanBtn').disabled = false;
+    };
+    image.src = currentImg;
+  };
+  reader.readAsDataURL(file);
+});
+
+function analyzeImage() {
+  if (!compressedB64) return;
+  if (!getApiKey()) { showToast('Please save your API key first'); return; }
+  document.getElementById('scanBtn').disabled = true;
+  document.getElementById('anbox').style.display = 'flex';
+  document.getElementById('resBox').style.display = 'none';
+  document.getElementById('errBox').style.display = 'none';
+  var sysp = 'You are SafetyOnSite, an expert HSE AI. Analyze the image for safety hazards. Respond ONLY with valid JSON (no markdown): {"hazards":[{"title":"max 6 words","description":"1-2 sentence risk explanation","severity":"critical|high|medium|low","category":"PPE|Fall|Electrical|Fire|Chemical|Housekeeping|Ergonomics|Machinery|Other"}],"summary":"2-3 sentence assessment","overallRisk":"critical|high|medium|low"}';
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': getApiKey(), 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sysp,
+      messages: [{ role: 'user', content: [
+        { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: compressedB64 } },
+        { type: 'text', text: 'Analyze this site photo for safety hazards.' }
+      ]}]
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.error) throw new Error(data.error.message);
+    var raw = (data.content || []).find(function(b) { return b.type === 'text'; });
+    var parsed = JSON.parse((raw ? raw.text : '').replace(/```json|```/g, '').trim());
+    scanResult = parsed; renderHazards(parsed);
+  })
+  .catch(function(e) {
+    document.getElementById('anbox').style.display = 'none';
+    var eb = document.getElementById('errBox');
+    eb.textContent = 'Error: ' + (e.message || 'Unknown error'); eb.style.display = 'block';
+    document.getElementById('scanBtn').disabled = false;
+  });
+}
+
+var SEV = { critical: 'CRITICAL', high: 'HIGH', medium: 'MEDIUM', low: 'LOW' };
+var RISK = { critical: 'CRITICAL RISK', high: 'HIGH RISK', medium: 'MEDIUM RISK', low: 'LOW RISK' };
+
+function renderHazards(data) {
+  document.getElementById('anbox').style.display = 'none';
+  var hz = data.hazards || [];
+  var list = document.getElementById('hzList'); list.innerHTML = '';
+  var risk = data.overallRisk || 'medium';
+  var badge = document.getElementById('riskBadge');
+  badge.textContent = RISK[risk] || risk; badge.className = 'rp rp-' + risk;
+  if (!hz.length) {
+    list.innerHTML = '<div style="background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.2);border-radius:10px;padding:14px;font-size:13px;color:var(--green);text-align:center">No visible hazards detected</div>';
+  } else {
+    hz.forEach(function(h) {
+      var s = h.severity || 'medium';
+      var d = document.createElement('div');
+      d.className = 'hzc ' + s;
+      d.innerHTML = '<div class="hd"></div><div style="flex:1;min-width:0"><div class="ht">' + h.title + '</div><div class="hde">' + h.description + '</div></div><div class="hb">' + (SEV[s] || s) + '</div>';
+      list.appendChild(d);
+    });
+  }
+  if (data.summary) { document.getElementById('sumTxt').textContent = data.summary; document.getElementById('sumBox').style.display = 'block'; }
+  document.getElementById('resBox').style.display = 'flex';
+  document.getElementById('scanBtn').disabled = false;
+}
+
+function resetScan() {
+  currentImg = null; scanResult = null; compressedB64 = null;
+  document.getElementById('imgInput').value = '';
+  document.getElementById('pimg').style.display = 'none';
+  document.getElementById('uinner').style.display = 'flex';
+  document.getElementById('uz').classList.remove('hi');
+  document.getElementById('resBox').style.display = 'none';
+  document.getElementById('errBox').style.display = 'none';
+  document.getElementById('scanBtn').disabled = true;
+}
+
+function saveReport() {
+  if (!scanResult) return;
+  var scans = getScans();
+  scans.unshift({ id: Date.now(), date: new Date().toISOString(), user: currentUser.email, image: currentImg, result: scanResult });
+  saveScans(scans); showToast('Report saved'); switchTab('report');
+}
+
+var WAH = ['Risk Assessment required before any work above 2 metres','Working at Height Permit (PTW) must be obtained and signed','Edge protection (guardrails, toe boards) or safety nets required','Full body harness with lifeline attached to fixed anchor point','Rescue/evacuation plan prepared; entire team must be briefed','Scaffold stability inspected and approved before starting work','Tools and materials must be tethered to prevent falling','Stop outdoor elevated work when wind exceeds 12.5 m/s','Pre-work PPE check: hard hat, harness, safety boots, hi-vis','Restrict access below; place barriers and warning signs'];
+var CS = ['Atmospheric test mandatory before entry: O2 19.5-23.5%, LEL under 10%','Confined Space Entry Permit obtained; posted at entry point','Continuous gas monitoring throughout the entire entry period','Minimum one attendant outside with uninterrupted communication','Mechanical ventilation established before work commences','LOTO applied before any energy source intervention','Rescue equipment (tripod, harness, SCBA) ready at entry point','In rescue scenario, call emergency services before entering','All entries and exits must be logged and recorded','Confined space workers must be trained and authorized'];
+var PPE = [{cat:'Head',txt:'Hard hat (EN 397) - impact and falling objects'},{cat:'Eye/Face',txt:'Safety glasses / face shield (EN 166) - dust, chemical, radiation'},{cat:'Hearing',txt:'Earplugs / earmuffs (EN 352) - above 85 dB environments'},{cat:'Respiratory',txt:'FFP2/FFP3 or half-face respirator - dust, gas, fumes'},{cat:'Hand',txt:'Gloves per hazard: mechanical, chemical, thermal, electrical'},{cat:'Foot',txt:'Steel/composite boot (EN ISO 20345) S1P or S3'},{cat:'Body',txt:'Hi-Vis vest/coverall; FR coverall when fire risk present'},{cat:'Fall',txt:'Full body harness + energy-absorbing lanyard (EN 361)'}];
+var INC = ['STOP - Stop work immediately, make the area safe','FIRST AID - Treat the injured, call emergency services','REPORT - Immediately notify supervisor and HSE department','PRESERVE - Do not disturb scene; photograph and preserve evidence','RECORD - Complete incident/near-miss form within 24 hours','INVESTIGATE - HSE and supervisor conduct root cause analysis','CORRECT - Prepare corrective action plan targeting root causes','TRACK - Monitor timely closure of all corrective actions','SHARE - Share lessons learned with the full team via toolbox talk'];
+
+function toggleCard(id) { document.getElementById(id + 'Card').classList.toggle('open'); }
+
+function renderInfoContent() {
+  document.getElementById('wahRules').innerHTML = WAH.map(function(r, i) { return '<div class="ri"><div class="rn">' + (i+1) + '</div><div>' + r + '</div></div>'; }).join('');
+  document.getElementById('csRules').innerHTML = CS.map(function(r, i) { return '<div class="ri"><div class="rn">' + (i+1) + '</div><div>' + r + '</div></div>'; }).join('');
+  document.getElementById('ppeGrid').innerHTML = PPE.map(function(p) { return '<div class="ppi"><strong>' + p.cat + '</strong><span>' + p.txt + '</span></div>'; }).join('');
+  document.getElementById('incRules').innerHTML = INC.map(function(r, i) { return '<div class="ri"><div class="rn">' + (i+1) + '</div><div>' + r + '</div></div>'; }).join('');
+}
+
+var COUNTRIES = [
+  {id:'tr',flag:'TR',name:'Turkey',law:'OHS Law No. 6331 (2012)',reg:'Ministry of Labour and Social Security',link:'https://www.mevzuat.gov.tr/MevzuatMetin/1.5.6331.pdf',rules:['Employers must perform and document written risk assessments','Workplaces with 50+ employees must have a safety specialist and occupational physician','Workers in hazardous work must hold a vocational competency certificate','OHS board is mandatory for workplaces with 50+ employees','Work accidents must be reported to SSI within 3 working days','Workers must receive regular training on existing hazards']},
+  {id:'ae',flag:'AE',name:'UAE',law:'Federal Law No. 8/1980 + Cabinet Decision 32/2022',reg:'Ministry of Human Resources (MOHRE)',link:'https://www.mohre.gov.ae/en/laws-and-regulations/laws.aspx',rules:['Employers must provide PPE to workers free of charge','Outdoor midday work ban applies (12:30-15:00) during hot weather','Work permit system mandatory for high-risk activities','Work accidents must be reported to Ministry within 24 hours','Worker accommodation must meet minimum standards','Wages are monitored via the Wage Protection System (WPS)']},
+  {id:'vn',flag:'VN',name:'Vietnam',law:'Law on OHS No. 84/2015',reg:'Ministry of Labour (MOLISA)',link:'https://www.ilo.org/dyn/natlex/natlex4.detail?p_isn=101643',rules:['Employers must prepare an annual OHS plan','Work accidents must be reported to local labour office within 24 hours','Workers must undergo health examination at least once per year','PPE must be provided by the employer free of charge','Workplaces with at least 10 workers must appoint an OHS coordinator','Hazardous jobs are defined in national lists with special requirements']},
+  {id:'gb',flag:'UK',name:'United Kingdom',law:'Health and Safety at Work Act 1974',reg:'Health and Safety Executive (HSE)',link:'https://www.hse.gov.uk/legislation/hswa.htm',rules:['Employers must ensure the health and safety of employees','Businesses with 5+ employees must document their H&S policy','Serious incidents under RIDDOR must be reported within 10 days','Employers must conduct and record risk assessments for significant hazards','Workers have a statutory duty to care for their own health and safety','CDM Regulations are mandatory for construction projects']},
+  {id:'us',flag:'US',name:'USA',law:'Occupational Safety and Health Act 1970',reg:'OSHA',link:'https://www.osha.gov/laws-regs/oshact/completeoshact',rules:['Employers must report severe work injuries to OSHA within 8 hours','General Duty Clause: employers must protect against recognized hazards','Workers have the right to file OSHA complaints without retaliation','Hazard Communication Standard (HazCom/GHS) mandatory for chemicals','Comprehensive sector standards for Construction, Maritime and General Industry','OSHA 300 log must be maintained for workplaces with 10+ employees']},
+  {id:'qa',flag:'QA',name:'Qatar',law:'Labour Law No. 14/2004',reg:'Ministry of Labour',link:'https://www.ilo.org/dyn/natlex/natlex4.detail?p_isn=67098',rules:['Outdoor work prohibited during midday hours (10:00-15:30) in hot weather','Employers must provide cold water, shade and rest breaks','Individual accommodation must be provided instead of dormitories','Workers can change employers without visa cancellation','Work accidents must be reported to authorities within 24 hours','International standards compliance mandated for major projects']},
+  {id:'sa',flag:'SA',name:'Saudi Arabia',law:'Labour Law Royal Decree M/51 (2005)',reg:'Ministry of Human Resources',link:'https://hrsd.gov.sa/en/labour-law',rules:['Employers must take all safety measures and provide PPE','Women and young workers may not work in hazardous conditions','Work accidents must be immediately reported to the Ministry','Working hours: max 8/day, 48/week; reduced to 6/day during Ramadan','Construction safety standards strengthened under Vision 2030','Worker transfer system (Iqama) reformed for employer changes']},
+  {id:'au',flag:'AU',name:'Australia',law:'Model Work Health and Safety Act 2011',reg:'Safe Work Australia',link:'https://www.safeworkaustralia.gov.au/law-and-regulation/model-whs-laws',rules:['Primary duty: ensure health and safety so far as reasonably practicable','All workers protected: employees, contractors, subcontractors and visitors','Death, serious injury or dangerous incidents must be notified immediately','Safe Work Method Statements (SWMS) mandatory for High Risk Construction Work','PCBUs hold networked, not linear, duties across the supply chain','Workers have broad participation rights including right to cease unsafe work']},
+  {id:'sg',flag:'SG',name:'Singapore',law:'Workplace Safety and Health Act (2006)',reg:'WSH Council',link:'https://www.mom.gov.sg/workplace-safety-and-health',rules:['Mandatory accreditation system for high-risk work (construction, shipyard)','All stakeholders share duties: employers, principals, suppliers and designers','Near-misses and dangerous occurrences must be reported to MOM','Sector performance tracked via Workplace Safety Index (WSI)','Special emphasis on safety training for foreign workers','Green card system requiring competency for high-risk sector workers']},
+  {id:'de',flag:'DE',name:'Germany',law:'Occupational Health and Safety Act (ArbSchG 1996)',reg:'Federal Institute for Occupational Safety (BAuA)',link:'https://www.baua.de/EN/Topics/Work-and-Health/Occupational-Safety-and-Health/_node.html',rules:['Employers must conduct systematic risk assessment (Gefaehrdungsbeurteilung)','Mandatory obligation to employ occupational physician and safety specialist','Trade associations (Berufsgenossenschaften) act as both insurer and inspector','Works Council (Betriebsrat) possible with 5+ employees','Emergency and first aid measures must be planned in advance','Comprehensive technical rules (TRBS/TRGS) implementing EU Directives exist']},
+  {id:'fr',flag:'FR',name:'France',law:'Labour Code (Code du Travail 1973)',reg:'Labour Inspectorate (Inspection du Travail)',link:'https://www.legifrance.gouv.fr/codes/id/LEGITEXT000006072050/',rules:['Every employer must prepare Single Document of Risk Assessment (DUERP)','Coordination Plan (PGC) and Coordinator (SPS) mandatory for construction','Workers may exercise right of withdrawal in serious and imminent danger','Social and Economic Committee (CSE) mandatory with 11+ employees','Safety representatives have right to active participation in inspections','Additional obligations for Seveso facilities (major accident prevention)']},
+  {id:'nl',flag:'NL',name:'Netherlands',law:'Working Conditions Act (Arbo 1999)',reg:'Inspectorate SZW',link:'https://www.government.nl/topics/labour-conditions-and-sick-leave',rules:['Employers must establish a written Health and Safety Policy (RI&E)','Obligation to use certified occupational health (arbo) services','RI&E must document hazards, risks and existing measures comprehensively','Workers have the right to participate in safety committees','Specific regulations for heavy work, chemicals and psychosocial risks','EU Directives fully implemented within comprehensive Arbo legislation']}
+];
+
+function initLegislation() { renderCountryGrid(COUNTRIES); }
+
+function renderCountryGrid(list) {
+  var grid = document.getElementById('cgrid');
+  var html = '';
+  list.forEach(function(c) {
+    var sel = selectedCountry === c.id ? ' sel' : '';
+    html += '<button class="cbtn' + sel + '" data-id="' + c.id + '"><span class="cflag">' + c.flag + '</span><div><div class="cname">' + c.name + '</div><div class="cyear">' + c.law.slice(-4) + '</div></div></button>';
+  });
+  grid.innerHTML = html;
+  grid.querySelectorAll('.cbtn').forEach(function(btn) {
+    btn.addEventListener('click', function() { selectCountry(this.getAttribute('data-id')); });
+  });
+}
+
+function filterCountries(q) {
+  var filtered = q ? COUNTRIES.filter(function(c) { return c.name.toLowerCase().includes(q.toLowerCase()); }) : COUNTRIES;
+  renderCountryGrid(filtered);
+}
+
+function selectCountry(id) {
+  selectedCountry = id;
+  var c = COUNTRIES.find(function(x) { return x.id === id; }); if (!c) return;
+  filterCountries(document.getElementById('cSearch').value);
+  var rules = c.rules.map(function(r) { return '<div class="lwr"><div class="lwdot"></div><div>' + r + '</div></div>'; }).join('');
+  var det = document.getElementById('lawDetail');
+  det.style.display = 'block';
+  det.innerHTML = '<div class="lwcard"><div class="lwhdr"><div class="lwflag">' + c.flag + '</div><div><div class="lwcn">' + c.name + '</div><div class="lwn">' + c.law + '</div></div></div><div class="lwbl">KEY OBLIGATIONS</div>' + rules + '<div class="lwreg"><strong>Regulatory Body:</strong> ' + c.reg + '</div><a class="lwlink" href="' + c.link + '" target="_blank">View Official Source</a></div>';
+  det.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+var RC = { critical: '#FF4444', high: '#FF8C00', medium: '#FFD600', low: '#2ECC71' };
+var RBG = { critical: 'rgba(255,68,68,.12)', high: 'rgba(255,140,0,.12)', medium: 'rgba(255,214,0,.12)', low: 'rgba(46,204,113,.12)' };
+
+function renderReports() {
+  var el = document.getElementById('rptList');
+  if (!currentUser) return;
+  var scans = getScans().filter(function(s) { return s.user === currentUser.email; });
+  if (!scans.length) {
+    el.innerHTML = '<div class="empty"><div style="font-size:40px;margin-bottom:12px;opacity:.35">&#128203;</div><div class="empty-t">No reports yet</div><div class="empty-s">Run a scan and save it.</div></div>';
+    return;
+  }
+  el.innerHTML = scans.map(function(s) {
+    var d = new Date(s.date);
+    var ds = d.toLocaleDateString('en-GB') + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    var hz = s.result.hazards || [];
+    var r = s.result.overallRisk || 'medium';
+    var counts = { critical: 0, high: 0, medium: 0, low: 0 };
+    hz.forEach(function(h) { counts[h.severity] = (counts[h.severity] || 0) + 1; });
+    var pills = Object.keys(counts).filter(function(k) { return counts[k] > 0; }).map(function(k) { return '<span class="rpill" style="background:' + RBG[k] + ';color:' + RC[k] + '">' + counts[k] + ' ' + SEV[k] + '</span>'; }).join('');
+    var thumb = s.image ? '<img class="rthumb" src="' + s.image + '">' : '<div class="rph"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></div>';
+    return '<div class="rcard">' + thumb + '<div class="rmeta"><div class="rdate">' + ds + '</div><div class="rtitle">' + hz.length + ' hazards - <span style="color:' + RC[r] + '">' + r.toUpperCase() + '</span></div><div class="rpills">' + pills + '</div></div><button class="rpdlbtn" onclick="dlReport(' + s.id + ')">PDF</button></div>';
+  }).join('');
+}
+
+function dlReport(id) {
+  var s = getScans().find(function(sc) { return sc.id === id; });
+  if (!s) return;
+  var d = new Date(s.date).toLocaleString('en-GB');
+  var hz = s.result.hazards || [];
+  var r = s.result.overallRisk || 'medium';
+  var lines = ['SafetyOnSite - HSE Inspection Report', '================================', 'Inspector: ' + currentUser.name, 'Company: ' + (currentUser.company || '-'), 'Date: ' + d, 'Overall Risk: ' + r.toUpperCase(), '', 'HAZARDS DETECTED: ' + hz.length, ''];
+  hz.forEach(function(h, i) {
+    lines.push((i+1) + '. [' + (SEV[h.severity] || h.severity) + '] ' + h.title);
+    lines.push('   ' + h.description);
+    lines.push('');
+  });
+  if (s.result.summary) { lines.push('OVERALL ASSESSMENT:', s.result.summary, ''); }
+  lines.push('---', 'SafetyOnSite - AI-powered HSE inspection', d);
+  var blob = new Blob([lines.join('\n')], {type: 'text/plain'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'SafetyOnSite_Report_' + id + '.txt'; a.click();
+  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+}
+
+function exportAll() {
+  var scans = getScans().filter(function(s) { return s.user === currentUser.email; });
+  if (!scans.length) { showToast('No reports to export'); return; }
+  var lines = ['SafetyOnSite - All Reports', '==========================', 'Inspector: ' + currentUser.name, ''];
+  scans.forEach(function(s, i) {
+    var d = new Date(s.date).toLocaleString('en-GB');
+    var hz = s.result.hazards || [];
+    var r = s.result.overallRisk || 'medium';
+    lines.push('Report ' + (i+1) + ' - ' + d + ' - ' + r.toUpperCase());
+    lines.push('-'.repeat(40));
+    hz.forEach(function(h, j) {
+      lines.push((j+1) + '. [' + (SEV[h.severity] || h.severity) + '] ' + h.title + ' - ' + h.description);
+    });
+    if (s.result.summary) { lines.push('Assessment: ' + s.result.summary); }
+    lines.push('');
+  });
+  var blob = new Blob([lines.join('\n')], {type: 'text/plain'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'SafetyOnSite_AllReports.txt'; a.click();
+  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+}
+
+function initWeather() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    var lat = pos.coords.latitude, lon = pos.coords.longitude;
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lat.toFixed(4) + '&longitude=' + lon.toFixed(4) + '&current=temperature_2m,wind_speed_10m&wind_speed_unit=ms&timezone=auto')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var temp = d.current.temperature_2m, wind = d.current.wind_speed_10m;
+      var hw = wind > 12.5, mw = wind > 10;
+      var wc = hw ? 'var(--red)' : mw ? 'var(--orange)' : 'var(--text)';
+      document.getElementById('wleft').innerHTML = '<div class="wi"><svg viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg><span class="wv">' + Math.round(temp) + '</span><span class="wu">deg C</span></div><div class="wi"><svg viewBox="0 0 24 24"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg><span class="wv" style="color:' + wc + '">' + wind.toFixed(1) + '</span><span class="wu">m/s</span></div><span class="wloc" id="wloc">Locating...</span>';
+      if (hw) document.getElementById('wwarn').innerHTML = '<span class="wwarn" style="background:rgba(255,68,68,.15);color:var(--red)">WIND ALERT - STOP WAH</span>';
+      else if (mw) document.getElementById('wwarn').innerHTML = '<span class="wwarn" style="background:rgba(255,214,0,.12);color:var(--y)">High Wind</span>';
+      fetch('https://nominatim.openstreetmap.org/reverse?lat=' + lat + '&lon=' + lon + '&format=json')
+      .then(function(r) { return r.json(); })
+      .then(function(geo) {
+        var city = geo.address && (geo.address.city || geo.address.town || geo.address.village || '') || '';
+        var cc = geo.address && geo.address.country_code && geo.address.country_code.toUpperCase() || '';
+        var wl = document.getElementById('wloc'); if (wl && city) wl.textContent = city + ', ' + cc;
+      }).catch(function() {});
+    }).catch(function() {});
+  }, function() {});
+}
+
+function openFeedback() { document.getElementById('fbo').classList.add('open'); }
+function closeFeedback() { document.getElementById('fbo').classList.remove('open'); }
+function sendFeedback() {
+  var msg = document.getElementById('fbMsg').value.trim();
+  var email = document.getElementById('fbEmail').value.trim();
+  if (!msg) { showToast('Please write a message'); return; }
+  window.open('mailto:safetyonsite.app@gmail.com?subject=' + encodeURIComponent('SafetyOnSite Feedback') + '&body=' + encodeURIComponent((email ? 'From: ' + email + '\n\n' : '') + msg));
+  document.getElementById('fbMsg').value = ''; document.getElementById('fbEmail').value = '';
+  closeFeedback(); showToast('Thank you!');
+}
+
+function showToast(msg) { var el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show'); setTimeout(function() { el.classList.remove('show'); }, 2500); }
+
+(function() {
+  var saved = localStorage.getItem('sos_current');
+  if (saved) { try { currentUser = JSON.parse(saved); bootApp(); } catch(e) { localStorage.removeItem('sos_current'); } }
+  var k = localStorage.getItem('sos_apikey');
+  if (k) { var ki = document.getElementById('apiKeyInput'); if (ki) ki.placeholder = 'Key saved - enter new to update'; }
+})();
+</script>
+</body>
+</html>
