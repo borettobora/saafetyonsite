@@ -409,7 +409,7 @@ input[type=file]{display:none}
 <script>
 var SUPABASE_URL = 'https://nncrqfafpgkhyfrvwzkj.supabase.co';
 var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uY3JxZmFmcGdraHlmcnZ3emtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTcxMTcsImV4cCI6MjA5MDc3MzExN30.AKIfCdogJCL87e6I_4Hl-JGoDODRhjcXlHYJBs7Po58';
-var ANTHROPIC_KEY = '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';
+var ANTHROPIC_KEY = localStorage.getItem('sos_anthropic') || '';
 var FREE_LIMIT = 5;
 
 var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
@@ -547,6 +547,7 @@ document.getElementById('imgInput').addEventListener('change', function(e) {
 
 async function analyzeImage() {
   if (!compressedB64) return;
+  if (!ANTHROPIC_KEY) { showToast('Please set your API key first'); return; }
   if (!isPro && todayScans >= FREE_LIMIT) { openUpgrade(); return; }
   document.getElementById('scanBtn').disabled = true;
   document.getElementById('anbox').style.display = 'flex';
