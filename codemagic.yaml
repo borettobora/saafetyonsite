@@ -6,8 +6,6 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.borettohse.safetyonsite
-      integrations:
-        app_store_connect: Codemagic
       node: 18
     scripts:
       - name: Install dependencies
@@ -29,5 +27,7 @@ workflows:
       - /tmp/xcodebuild_logs/*.log
     publishing:
       app_store_connect:
-        auth: integration
+        api_key: URJGSWZK8M
+        key_id: URJGSWZK8M
+        issuer_id: 685baa21-2a3b-4f41-8b94-d0da69079e11
         submit_to_testflight: true
