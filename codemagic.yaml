@@ -16,12 +16,12 @@ workflows:
         script: npx cap sync ios
       - name: Set version
         script: |
-          agvtool new-version -all $(($(agvtool what-version -terse) + 1))
+          cd ios/App
+          agvtool new-version -all 2
           agvtool new-marketing-version 1.3.0
       - name: Build iOS
         script: |
           xcode-project use-profiles
-          find . -name "*.xcworkspace" -type d
           xcode-project build-ipa \
             --project "ios/App/App.xcodeproj" \
             --scheme "App"
