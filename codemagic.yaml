@@ -14,11 +14,6 @@ workflows:
         script: npm install
       - name: Capacitor sync
         script: npx cap sync ios
-      - name: Install CocoaPods
-        script: |
-          find . -name "Podfile" -type f
-          cd ios/App/App
-          pod install || cd ../. && pod install || pod install --repo-update
       - name: Build iOS
         script: |
           xcode-project use-profiles
